@@ -102,34 +102,44 @@ class DataAnalyzer:
             plt.ylabel(numerical_column)
             plt.xticks(rotation=45)
             plt.show()
-'''
-# Example usage
-if __name__ == "__main__":
-    # Sample data
-    data = {
-        'ZipCode': [1001, 1002, 1003, 1004, 1005],
-        'TotalPremium': [200, 150, 300, 250, 400],
-        'TotalClaims': [180, 120, 280, 230, 380],
-        'Region': ['East', 'East', 'West', 'West', 'South']
-    }
-    df = pd.DataFrame(data)
 
-    # Initialize the analyzer
-    analyzer = DataAnalyzer(df)
+    def plot_premium_claims_correlation(self, premium_col, claims_col, category_col):
+            """
+            Plot the relationship between total premiums and total claims by category.
+            :param premium_col: Column name for total premiums.
+            :param claims_col: Column name for total claims.
+            :param category_col: Column name for categorical segmentation.
+            """
+            if premium_col not in self.df.columns or claims_col not in self.df.columns:
+                raise ValueError("Specified columns do not exist in the DataFrame.")
+            if not pd.api.types.is_numeric_dtype(self.df[premium_col]) or not pd.api.types.is_numeric_dtype(self.df[claims_col]):
+                raise ValueError("Both premium and claims columns must be numerical.")
 
-    # Identify column types
-    column_types = analyzer.identify_column_types()
-    print("Column Types:", column_types)
+            plt.figure(figsize=(12, 8))
+            sns.scatterplot(data=self.df, x=premium_col, y=claims_col, hue=category_col, style=category_col, palette='Set2', s=100)
+            sns.regplot(data=self.df, x=premium_col, y=claims_col, scatter=False, color='gray', ci=None)
+            plt.title(f"Premium vs. Claims Correlation by {category_col}", fontsize=16)
+            plt.xlabel(premium_col, fontsize=14)
+            plt.ylabel(claims_col, fontsize=14)
+            plt.legend(title=category_col, fontsize=12)
+            plt.tight_layout()
+            plt.show()
+            plt.show()
+    def plot_monthly_trends(self, month_col, category_col):
+            """
+            Plot monthly trends in insurance categories.
+            :param month_col: Column name for transaction months.
+            :param category_col: Column name for categories.
+            """
+            if month_col not in self.df.columns or category_col not in self.df.columns:
+                raise ValueError("Specified columns do not exist in the DataFrame.")
 
-    # Univariate analysis
-    print("\nUnivariate Analysis:")
-    analyzer.plot_univariate_distribution(['TotalPremium', 'TotalClaims'])
-
-    # Bivariate relationship
-    print("\nBivariate Analysis:")
-    analyzer.plot_bivariate_relationship('TotalPremium', 'TotalClaims', hue='ZipCode')
-
-    # Correlation matrix
-    print("\nCorrelation Matrix:")
-    analyzer.plot_correlation_matrix(['TotalPremium', 'TotalClaims'])
-'''
+            monthly_data = self.df.groupby([month_col, category_col]).size().reset_index(name='Count')
+            plt.figure(figsize=(14, 8))
+            sns.lineplot(data=monthly_data, x=month_col, y='Count', hue=category_col, marker='o')
+            plt.title(f"Monthly Trends in {category_col}", fontsize=16)
+            plt.xlabel(month_col, fontsize=14)
+            plt.ylabel("Number of Policies", fontsize=14)
+            plt.legend(title=category_col, fontsize=12)
+            plt.tight_layout()
+            plt.show()
