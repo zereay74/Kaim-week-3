@@ -214,6 +214,23 @@ class DataCleaner:
         Remove duplicate rows from the DataFrame.
         """
         self.df.drop_duplicates(inplace=True)
+        
+    def remove_nulls_from_columns(self, columns):
+        """
+        Remove rows with null values in the specified columns from the DataFrame.
+        :param columns: List of column names to check for null values.
+        """
+        if not isinstance(columns, list):
+            raise ValueError("Columns parameter should be a list of column names.")
+        
+        # Check if all columns exist in the DataFrame
+        missing_columns = [col for col in columns if col not in self.df.columns]
+        if missing_columns:
+            raise ValueError(f"The following columns do not exist in the DataFrame: {', '.join(missing_columns)}")
+        
+        # Drop rows with null values in the specified columns
+        self.df.dropna(subset=columns, inplace=True)
+
 
     def get_cleaned_data(self):
         """
